@@ -234,12 +234,13 @@ app.post("/api/telegram-webhook", async (req, res) => {
       reply =
         "Ссылка недействительна или срок её действия истёк. Пожалуйста, отправьте заявку на сайте ещё раз.";
     } else {
-      reply =
-        `Ваша заявка\n\n` +
-        `Имя: ${lead.name}\n` +
-        `Телефон: ${lead.phone}\n` +
-        (lead.comment ? `Комментарий: ${lead.comment}\n` : "") +
-        `\nСпасибо! Ваша заявка принята.`;
+    reply =
+      `Ваша заявка принята!\n\n` +
+      `Имя: ${lead.name}\n` +
+      `Телефон: ${lead.phone}\n` +
+      (lead.comment ? `Комментарий: ${lead.comment}\n\n` : "\n") +
+      `Спасибо за заявку! Мы свяжемся с вами в течение часа ☕️.`;
+
 
       const { error: updateError } = await supabase
         .from("telegram_pending_leads")
