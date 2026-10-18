@@ -9,6 +9,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const nameInput = document.querySelector("#name") || document.querySelector("input[type='text']");
   const commentInput = document.querySelector(".comment-field input") || document.querySelector(".comment-field textarea");
 
+  const comment = document.querySelector('.comment-field');
+  const topic = document.querySelector('#topic');
+
   const successModal = document.querySelector("#success-modal");
   const successClose = document.querySelector("#success-close");
   const successOk = document.querySelector("#success-ok");
@@ -149,63 +152,88 @@ document.addEventListener("DOMContentLoaded", function () {
       textMessage += `Спасибо за заявку! Мы свяжемся с вами по указанному номеру в течение часа.`;
 
 
-      // Запрос НА СЕРВЕР NODE.js
-      console.log("Отправляем fetch запрос на локальный сервер...");
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
-
-      fetch('http://localhost:3000/api/lead', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: clientName,
-          phone: phone.value,
-          comment: (commentInput && commentInput.value.trim() && commentInput.offsetParent !== null) ? commentInput.value.trim() : '',
-          // 🌟 Передаем готовый красивый текст с фразой "Спасибо" прямо на сервер!
-          textMessage: textMessage 
-        }),
-
-        signal: controller.signal
-      })
-      .then(response => {
-        clearTimeout(timeoutId);
-        console.log("Получен ответ от локального сервера, статус:", response.status);
+      
+    // Запрос на сервер Node.js
+    console.log("Отправляем заявку на сервер...");
+    const controller = new AbortController();
+    // Даём серверу достаточно времени для ответа
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    
+    const apiUrl =
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname === "localhost"
+        ? "http://localhost:3000/api/lead"
+        : "/api/lead";
         
-        if (response.ok) {
-          localStorage.setItem("lastOrderSubmitTime", new Date().getTime());
-          checkSubmitCooldown();
+    fetch(apiUrl, {
 
-          if (successModal) {
-            successModal.hidden = false;
-          }
-          form.reset(); 
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: clientName,
+        phone: phoneValue,
+        comment: (
+          commentInput &&
+          commentInput.value.trim() &&
+          commentInput.offsetParent !== null
+        ) ? commentInput.value.trim() : '',
+        textMessage: textMessage
+      }),
+      signal: controller.signal
+    })
+    .then(async response => {
+      clearTimeout(timeoutId);
+      const result = await response.json();
+      console.log("Ответ сервера:", response.status, result);
+      if (response.ok && result.success === true) {
+        // Запоминаем успешную отправку
+        localStorage.setItem(
+          "lastOrderSubmitTime",
+          new Date().getTime()
+        );
+        checkSubmitCooldown();
+        // Показываем окно успеха только после подтверждения сервера
+        if (successModal) {
+          successModal.hidden = false;
+        }
+        form.reset();
+        // Скрываем поле комментария после сброса формы
+        if (comment) {
+          comment.style.display = "none";
+        }
+
         } else {
-          console.error("❌ Сервер вернул ошибку:", response.status);
-          if (networkError) {
-            networkError.textContent = `Ошибка сервера. Статус: ${response.status}. ☕️`;
-            networkError.style.opacity = "1";
-          }
-          if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.style.opacity = "1";
-          }
+          throw new Error(
+            result.message || `Ошибка сервера: ${response.status}`
+          );
         }
       })
+
+      
+      
       .catch(error => {
         clearTimeout(timeoutId);
-        console.error("❌ Ошибка связи с сервером Node.js:", error);
-        
+      
+        console.error("Ошибка отправки заявки:", error);
+      
         if (networkError) {
-          networkError.textContent = "Не удалось связаться с сервером. Убедитесь, что он запущен в терминале! ☕️";
+          if (error.name === "AbortError") {
+            networkError.textContent =
+              "Сервер не ответил вовремя. Попробуйте позже. ☕";
+          } else {
+            networkError.textContent =
+              "Упс... Соединение с интернетом прервано ☕";
+          }
+        
           networkError.style.opacity = "1";
         }
-        
+      
         if (submitButton) {
           submitButton.disabled = false;
           submitButton.style.opacity = "1";
+          submitButton.style.cursor = "pointer";
           submitButton.textContent = originalButtonText;
         }
       });
@@ -213,9 +241,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Показ/скрытие поля комментария
-  const comment = document.querySelector('.comment-field');
-  const topic = document.querySelector('#topic');
-
   if (topic && comment) {
     topic.addEventListener("change", function () {
       if (topic.value === 'question') {
