@@ -30,6 +30,9 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+app.get("/", (req, res) => {
+  res.redirect("/index.html");
+});
 
 
 app.post("/api/lead", (req, res) => {
