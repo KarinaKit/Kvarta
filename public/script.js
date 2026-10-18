@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const topic = document.querySelector('#topic');
 
   const successModal = document.querySelector("#success-modal");
+  const telegramLink = document.querySelector("#telegram-link");
   const successClose = document.querySelector("#success-close");
   const successOk = document.querySelector("#success-ok");
 
@@ -188,6 +189,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const result = await response.json();
       console.log("Ответ сервера:", response.status, result);
       if (response.ok && result.success === true) {
+        if (telegramLink && result.telegramLink) {
+          telegramLink.href = result.telegramLink;
+        }
         // Запоминаем успешную отправку
         localStorage.setItem(
           "lastOrderSubmitTime",
