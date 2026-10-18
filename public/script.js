@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const clientName = nameInput && nameInput.value.trim() ? nameInput.value.trim() : "Не указано";
       let textMessage = `🔔 *Ваша заявка принята!*\n\n`;
       textMessage += `👤 *Имя:* ${clientName}\n`;
-      textMessage += `📞 *Телефон:* ${phone.value}`;
+      textMessage += `📞 *Телефон:* ${phone.value}\n`;
 
       if (commentInput && commentInput.value.trim() && commentInput.offsetParent !== null) {
         textMessage += `\n💬 *Вопрос:* ${commentInput.value.trim()}\n\n`;
@@ -164,7 +164,7 @@ document.addEventListener("DOMContentLoaded", function () {
       window.location.hostname === "localhost"
         ? "http://localhost:3000/api/lead"
         : "/api/lead";
-        
+
     fetch(apiUrl, {
 
       method: 'POST',
