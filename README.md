@@ -1,7 +1,7 @@
 # Кварта — веб-сайт
 
 **Демо:** https://kvarta-ecru.vercel.app/  
-**Репозиторий:** https://github.com/KarinaKit/Kvarta
+**Репозиторий:** https://karinakit.github.io/Kvarta/public/index.html
 
 ## О проекте
 
