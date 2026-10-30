@@ -479,7 +479,7 @@ textarea:focus-visible {
   order: 1;
   text-decoration: none;
   padding: 10px 18px;
-  background-color: #8da350;
+  background-color: #6a7a3c;
   color: #ffffff;
   border-radius: 8px;
   font-size: 14px;
@@ -507,7 +507,7 @@ textarea:focus-visible {
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s ease;
-  outline: 1px solid #86994e;
+  outline: 1px solid #6a7a3c;
   border-radius: 8px;
   z-index: 2;
 }
